@@ -21,7 +21,7 @@
         <form class=time-task-form enctype="multipart/form-data" method="post">
             <input type="hidden" name="id" value="{{ task.task_id }}">
             <div style="display: flex; flex-direction: row">
-                <a class=task-field id="task-{{ task.task_id }}-name-a" style="display: block">{{ task.task_name }}</a>
+                <a class=task-field id="task-{{ task.task_id }}-name-a" style="display: block">{{ task.name }}</a>
                 <textarea id="task-{{ task.task_id }}-name-area" class="task-field" style="resize: none; display: none" wrap="off" placeholder="task name" name="taskname">{{ task.taskname }}</textarea>
                 <img class="edit-task-name-image" onclick="editTaskname({{ task.task_id }})" src="/static/images/pen.svg">
             </div>
@@ -64,27 +64,13 @@
                     <input id="{{ task.task_id }}-task-days" type=hidden name="days" value="{{ task.days }}">
                 </div>
             </div>
-        <button class="form-submit-button" formaction="/task/update" >save</button>
-        <button type="submit" formaction="task/delete">❌</button>
+        <button class="form-submit-button" formaction="/tasks/update" >save</button>
+        <button type="submit" formaction="tasks/delete">❌</button>
         <div class="resume-expand-logo">
             <div id="resume-social-networks-icons" style="display:block;">
-            {% for task in tasks_list %}
-                {% if "facebook" in task %}
-                    <img class="resume-social-networks-icons" src="/static/images/social_networks/facebook.svg" alt="facebook logo">
-                {% else %}
-                    + <img class="resume-social-networks-icons" src="/static/images/social_networks/facebook.svg">
-                {% endif %}
-                {% if "twitter" in task %}
-                    <img class="resume-social-networks-icons" src="/static/images/social_networks/twitter.svg">
-                {% else %}
-                    + <img class="resume-social-networks-icons" src="/static/images/social_networks/twitter.svg">
-                {% endif %}
-                {% if "instagram" in task %}
-                    <img class="resume-social-networks-icons" src="/static/images/social_networks/instagram.svg">
-                {% else %}
-                    + <img class="resume-social-networks-icons" src="/static/images/social_networks/instagram.svg">
-                {% endif %}
-            {% endfor %}
+                {% if "facebook" not in task %}+ {% endif %} <img class="resume-social-networks-icons" src="/static/images/social_networks/facebook.svg" alt="facebook logo">
+                {% if "instagram" in task %}+ {% endif %}<img class="resume-social-networks-icons" src="/static/images/social_networks/instagram.svg" alt="instagram logo">
+                {% if "twitter" in task %}+ {% endif %}<img class="resume-social-networks-icons" src="/static/images/social_networks/twitter.svg" alt="twitter logo">
             </div>
         </div>
         <br><br>

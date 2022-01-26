@@ -12,34 +12,34 @@ bp = Blueprint('tasks', __name__, url_prefix='/tasks')
 @login_required
 def index():
     user_tasks = query_db("SELECT * FROM basicTask WHERE user_id=?", (g.user['email'],))
-    tasks_list = user_tasks or [PLACEHOLDER_TASK]
-    # for user_task in user_tasks:
-    #         task["task_id"] = user_task[0]
-    #         task["user_id"] = user_task[1]
-    #         task["name"] = user_task[2]
-    #         task["date"] = user_task[3]
-    #         task["repetition"] = user_task[4]
-    #         task["days"] = user_task[5]
-    #         task["months"] = user_task[6]
+    tasks_list = []
 
-    #         facebook_task = get_facebook_task(task_id)
-    #         if facebook_task:
-    #             task["facebook"]["isActive"] = True
-    #             task["facebook"]["message"] = facebook_message
-    #             task["facebook"]["files"] = facebook_files
-    #         twitter_task = get_twitter_task(task_id)
-    #         if twitter_task:
-    #             task["twitter"]["isActive"] = True
-    #             task["twitter"]["message"] = twitter_message
-    #             task["twitter"]["files"] = twitter_files
-    #         instagram_task = get_instagram_task(task_id)
-    #         if instagram_task:
-    #             task["instagram"]["isActive"] = True
-    #             task["instagram"]["message"] = instagram_message
-    #             task["instagram"]["files"] = instagram_files
-    #         tasks_list.append(task)
-    flash(g.user['email'])
-    flash(f"user_tasks: {user_tasks}")
+    for user_task in user_tasks:
+        task_id = user_task['task_id']
+
+        facebook_task = query_db("SELECT * FROM FacebookTask WHERE task_id=?", (task_id,), one=True)
+        if facebook_task:
+            user_task["facebook"]["isActive"] = True
+            user_task["facebook"]["message"] = facebook_task['message']
+            user_task["facebook"]["files"] = facebook_task['files']
+        
+        instagram_task = query_db("SELECT * FROM InstagramTask WHERE task_id=?", (task_id,), one=True)
+        if instagram_task:
+            user_task["instagram"]["isActive"] = True
+            user_task["instagram"]["message"] = instagram_task['message']
+            user_task["instagram"]["files"] = instagram_task['files']
+        
+        twitter_task = query_db("SELECT * FROM TwitterTask WHERE task_id=?", (task_id,), one=True)
+        if twitter_task:
+            user_task["twitter"]["isActive"] = True
+            user_task["twitter"]["message"] = twitter_task['message']
+            user_task["twitter"]["files"] = twitter_task['files']
+
+        tasks_list.append(user_task)
+    
+    # Always put the placeholder task so we can use to add a new task in any case
+    tasks_list.append(PLACEHOLDER_TASK)
+    
     return render_template('tasks.html', tasks_list=tasks_list)
 
 @bp.route('/update', methods=['GET', 'POST'])
