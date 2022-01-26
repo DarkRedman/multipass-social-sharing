@@ -1,109 +1,88 @@
 import datetime
 from passlib.hash import sha256_crypt
 import sqlite3
-
+from flask import current_app
 import social_networks.db_management
-
-connection = sqlite3.connect('/srv/multipass.db')
+from db import query_db
 
 
 # ------------------ Users ----------------- #
 
 def get_user_password(email):
-    global connection
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM users WHERE email=?", (email,))
-    user = cursor.fetchone()
-    return user[1]
-
+    user = query_db("SELECT * FROM users WHERE email=?", (email,), one=True)
+    if user:
+        return user[1]
 
 def validate_user(email, password):
-    password_query = get_user_password(email)
-    if password_query is None:
-        return False
-    else:
-        if sha256_crypt.verify(password, password_query):
+    if user_exist(email):
+        password_query = get_user_password(email)
+        if password_query and sha256_crypt.verify(password, password_query):
             return True
     return False
 
-
 def create_user(email, password):
     encrypted_password = sha256_crypt.hash(password)
-
-    sql = ''' INSERT INTO users(email, password) VALUES(?,?) '''
-    user = (email, encrypted_password)
-
-    cursor = connection.cursor()
-    cursor.execute(sql, user)
-    connection.commit()
-
+    query_db("INSERT INTO users(email, password) VALUES(?,?)", (email, encrypted_password))
 
 def update_user(email, password):
-    user = (password, email)
-    sql = ''' UPDATE users SET password = ? WHERE email = ?'''
-    cursor = connection.cursor()
-    cursor.execute(sql, user)
-    connection.commit()
-
+    query_db("UPDATE users SET password = ? WHERE email = ?", (password, email))
 
 def delete_user(email):
-    User.delete_user(email)
-
+    query_db("DELETE FROM users WHERE email = ?", (email,))
 
 def user_exist(email):
-    return User.user_exist(email)
+    user = query_db("SELECT * FROM users WHERE email=?", (email,), one=True)
+    return bool(user)
 
 
 # ------------------ Tasks ----------------- #
 
+PLACEHOLDER_TASK = {
+    'task_id': 0,
+    'user_id': None,
+    'task_name': 'my task',
+    'date': datetime.datetime.now().replace(second=0, microsecond=0).isoformat(),
+    'repetition': 'daily',
+    'days': 'MO',
+    'months': 'JAN',
+    'facebook': {
+        'isActive': False,
+        'message': 'my message',
+        'files': ""
+    },
+    'instagram': {
+        'isActive': False,
+        'message': 'my message',
+        'files': ""
+    },
+    'twitter': {
+        'isActive': False,
+        'message': 'my message',
+        'files': ""
+    }
+}
+
 def basic_task_exist(task_id):
-    global connection
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM basicTask WHERE task_id=?", (task_id,))
-    basic_task = cursor.fetchall()
+    basic_task = query_db("SELECT * FROM basicTask WHERE task_id=?", (task_id,), one=True)
+    return bool(basic_task)
 
-    if len(basic_task) == 0:
-        return false
-    return true
+def get_facebook_task(task_id):
+    return query_db("SELECT * FROM FacebookTask WHERE task_id=?", (task_id,), one=True)
 
+def get_instagram_task(task_id):
+    return query_db("SELECT * FROM InstagramTask WHERE task_id=?", (task_id,), one=True)
+
+def get_twitter_task(task_id):
+    return query_db("SELECT * FROM TwitterTask WHERE task_id=?", (task_id,), one=True)
 
 def get_user_tasks(email):
-    global connection
-
-    task = {
-        'task_id': 0,
-        'user_id': None,
-        'task_name': 'my task',
-        'date': datetime.datetime.now().replace(second=0, microsecond=0).isoformat(),
-        'repetition': 'daily',
-        'days': 'MO',
-        'months': 'JAN',
-        'facebook': {
-            'isActive': False,
-            'message': 'my message',
-            'files': ""
-        },
-        'instagram': {
-            'isActive': False,
-            'message': 'my message',
-            'files': ""
-        },
-        'twitter': {
-            'isActive': False,
-            'message': 'my message',
-            'files': ""
-        }
-    }
-
-    cursor = connection.cursor()
-    cursor.execute("SELECT * FROM basicTask WHERE user_id=?", (email,))
-    user_tasks = cursor.fetchall()
-
+    current_app.logger.debug(f"Get tasks for user {email}")
+    user_tasks = query_db("SELECT * FROM basicTask WHERE user_id=?", (email,))
+    current_app.logger.debug(user_tasks)
     tasks_list = []
 
     if len(user_tasks) == 0:
-        return task
-
+        tasks_list.append(PLACEHOLDER_TASK)
     else:
         for user_task in user_tasks:
             task["task_id"] = user_task[0]
@@ -114,24 +93,23 @@ def get_user_tasks(email):
             task["days"] = user_task[5]
             task["months"] = user_task[6]
 
-
-            if facebook_task_exist(task_id):
-                facebook_task = get_facebook_task(task_id)
+            facebook_task = get_facebook_task(task_id)
+            if facebook_task:
                 task["facebook"]["isActive"] = True
                 task["facebook"]["message"] = facebook_message
                 task["facebook"]["files"] = facebook_files
-            if twitter_task_exist(task_id):
-                twitter_task = get_twitter_task(task_id)
+            twitter_task = get_twitter_task(task_id)
+            if twitter_task:
                 task["twitter"]["isActive"] = True
                 task["twitter"]["message"] = twitter_message
                 task["twitter"]["files"] = twitter_files
-            if instagram_task_exist(task_id):
-                instagram_task = get_instagram_task(task_id)
+            instagram_task = get_instagram_task(task_id)
+            if instagram_task:
                 task["instagram"]["isActive"] = True
                 task["instagram"]["message"] = instagram_message
                 task["instagram"]["files"] = instagram_files
             tasks_list.append(task)
-        return tasks_list
+    return tasks_list
 
 
 def create_task(task_id, user_id, name, date, repetition, days, months):
@@ -164,11 +142,8 @@ def create_task(task_id, user_id, name, date, repetition, days, months):
 
 def update_task(task_id, user_id, name, date, repetition, days, months):
     if basic_task_exist(task_id):
-        task = (task_id, user_id, name, date, repetition, days, months)
-        sql = ''' UPDATE basicTask SET name = ?, date = ?, repetition = ?, days= ?, months=? WHERE task_id = ?'''
-        cur = conn.cursor()
-        cur.execute(sql, task)
-        conn.commit()
+        current_app.logger.debug(f"Update task {task_id} for user {user_id} named {name}")
+        query_db("UPDATE basicTask SET name = ?, date = ?, repetition = ?, days= ?, months=? WHERE task_id = ?", (name, date, repetition, days, months, task_id))
 
         # if task["facebook"]:
         #     FacebookTask.update_facebook_task(
@@ -209,23 +184,23 @@ def get_max_task_id():
 
 
 def get_frequency_sorted_tasks(frequency, tasks):
-    print("not implemented")
+    raise NotImplementedError("Not implemented yet")
 
 
 def get_today_daily_tasks(current_date):
-    print("not implemented")
+    raise NotImplementedError("Not implemented yet")
 
 
 def get_today_weekly_tasks(current_date, current_day):
-    print("not implemented")
+    raise NotImplementedError("Not implemented yet")
 
 
 def get_today_monthly_tasks(current_date, current_day_int, current_month):
-    print("not implemented")
+    raise NotImplementedError("Not implemented yet")
 
 
 def get_today_custom_tasks(current_date, current_day, current_month):
-    print("not implemented")
+    raise NotImplementedError("Not implemented yet")
 
 # --------------- log activity -------------- #
 

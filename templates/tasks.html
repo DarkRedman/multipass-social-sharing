@@ -63,8 +63,7 @@
                     <input id="{{ task.task_id }}-task-days" type=hidden name="days" value="{{ task.days }}">
                 </div>
             </div>
-        <button class="form-submit-button" formaction="/datetime/edit" >save</button>
-        </form>
+        <button class="form-submit-button" formaction="/task/update" >save</button>
         <button type="submit" formaction="task/delete">❌</button>
         <div class="resume-expand-logo">
             <div id="resume-social-networks-icons" style="display:block;">
@@ -90,11 +89,12 @@
         <br><br>
             <button type="button" class="show-tasks-button" id="task-{{ task.task_id }}-button" onclick="showHideAllTasks('{{ task.task_id }}')">◁</button>
         <div id="task-{{ task.task_id }}-expanded" class="task-expanded" style="display: none">
-            {% include 'socialNetworks/facebookSubtask.html' %}
-            {% include 'socialNetworks/instagramSubtask.html' %}
-            {% include 'socialNetworks/twitterSubtask.html' %}
+            {% if "facebook" in task %}{% include 'socialNetworks/facebookSubtask.html' %}{% endif %}
+            {% if "instagram" in task %}{% include 'socialNetworks/instagramSubtask.html' %}{% endif %}
+            {% if "twitter" in task %}{% include 'socialNetworks/twitterSubtask.html' %}{% endif %}
         </div>
     </div>
     {% endfor %}
+        </form>
 </div>
 {% endblock %}

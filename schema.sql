@@ -1,0 +1,21 @@
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL
+);
+
+DROP TABLE IF EXISTS basic_tasks;
+
+CREATE TABLE basic_tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  date TIMESTAMP NOT NULL,
+  repetition INTEGER NOT NULL,
+  days INTEGER NOT NULL,
+  months INTEGER NOT NULL,
+  facebook BOOLEAN NOT NULL,
+  twitter BOOLEAN NOT NULL,
+  instagram BOOLEAN NOT NULL
+);
