@@ -3,10 +3,10 @@
 {% block navigation %}{% endblock %}
 
 {% block content %}
-<script src="{{ baseURL }}/static/js/script.js"></script>
+<script src="/static/js/script.js"></script>
 
     <div class="pageContainer" id="container">
-    <form action="/register" method="post" id="formLogin">
+    <form action="/auth/register" method="post" id="formLogin">
         <div>
             <h3>Creation du compte</h3>
             <label for="emailAreaId"></label>

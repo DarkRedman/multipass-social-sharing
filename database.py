@@ -2,8 +2,8 @@ import datetime
 from passlib.hash import sha256_crypt
 import sqlite3
 from flask import current_app
-import social_networks.db_management
-from db import query_db
+from multipass.social_networks import db_management
+from multipass.db import query_db
 
 
 # ------------------ Users ----------------- #
@@ -77,8 +77,8 @@ def get_twitter_task(task_id):
 
 def get_user_tasks(email):
     current_app.logger.debug(f"Get tasks for user {email}")
-    user_tasks = query_db("SELECT * FROM basicTask WHERE user_id=?", (email,))
     current_app.logger.debug(user_tasks)
+    user_tasks = query_db("SELECT * FROM basicTask WHERE user_id=?", (email,))
     tasks_list = []
 
     if len(user_tasks) == 0:

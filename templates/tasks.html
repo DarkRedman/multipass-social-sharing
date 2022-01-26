@@ -1,18 +1,19 @@
 {% extends "base.html" %}
 
 {% block stylesheet %}
-    <link rel="stylesheet" href="{{ baseURL }}/static/css/tasks.css" xmlns="http://www.w3.org/1999/html">
+    <link rel="stylesheet" href="/static/css/tasks.css" xmlns="http://www.w3.org/1999/html">
 {% endblock %}
 
 {% block navigation %}
     <div class="navigation">
+        <span>{{ g.user['email'] }}</span>
         <button><a style="text-decoration: none;" href="/account">Account</a></button>
-        <button><a style="text-decoration: none;" href="/logout">Logout</a></button>
+        <button><a style="text-decoration: none;" href="/logout">Log Out</a></button>
     </div>
 {% endblock %}
 
 {% block content %}
-<script src="{{ baseURL }}/static/js/tasks.js"></script>
+<script src="/static/js/tasks.js"></script>
 
 {% for task in tasks_list %}
 <div class="task-block">
