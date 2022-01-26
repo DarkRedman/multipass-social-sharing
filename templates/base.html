@@ -28,7 +28,7 @@
 <div class="navigation">
     {% if g.user %}
         <span>{{ g.user['email'] }}</span>
-        <button><a style="text-decoration: none;" href="{{ url_for('tasks.dashboard') }}">Tasks</a></button>
+        <button><a style="text-decoration: none;" href="{{ url_for('tasks.index') }}">Tasks</a></button>
         <button><a style="text-decoration: none;" href="{{ url_for('auth.logout') }}">Log Out</a></button>
     {% else %}
         <button><a style="text-decoration: none;" href="{{ url_for('auth.register') }}">Register</a></button>

@@ -96,6 +96,7 @@ function highlight(taskid) {
 function editTaskname(taskid) {
     let taskname_a = document.getElementById("task-"+taskid+"-name-a");
     let taskname_area = document.getElementById("task-"+taskid+"-name-area");
+    console.log("editTaskname"+taskid);
 
     if (taskname_a.style.display === "block") {
         taskname_a.style.display = "none";
