@@ -5,7 +5,7 @@
         <img class="float-right" src="/static/images/expand.svg" alt="expand">
     </div>
     <div id="facebook-{{ task.task_id }}-parameters" style="display:block">
-        <input id="facebook-{{ task.task_id }}-ActivationFlag" type="hidden" name="facebook-activated" value="False">
+        <input id="facebook-{{ task.task_id }}-ActivationFlag" type="hidden" name="facebook-activated" value="{{ task.facebook.isActive }}">
         <textarea name=facebook-message
                   class="task-field facebook-task-message">{{ task.facebook.message }}</textarea>
         <input

@@ -5,7 +5,7 @@
         <img class="float-right" src="/static/images/expand.svg" alt="expand">
     </div>
     <div id="twitter-{{ task.task_id }}-parameters" style="display:block">
-        <input id="twitter-{{ task.task_id }}-ActivationFlag" type="hidden" name="twitter-activated" value="False">
+        <input id="twitter-{{ task.task_id }}-ActivationFlag" type="hidden" name="twitter-activated" value="{{ task.twitter.isActive }}">
         <textarea name=twitter-message
                   class="task-field twitter-task-message">{{ task.twitter.message }}</textarea>
         <input

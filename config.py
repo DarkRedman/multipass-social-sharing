@@ -1,7 +1,8 @@
 import secrets
 
+
 class Config(object):
-    UPLOAD_FOLDER = '/static/images/'
+    UPLOAD_FOLDER = '/uploads'
     AUTHORIZED_FILES_TYPE = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
     SESSION_COOKIE_NAME = 'userSession'
 
@@ -11,6 +12,7 @@ class DebugConfig(Config):
     BASEURL = 'http://localhost:5000/'
     SECRET_KEY = 'do-i-really-need-this'
     DATABASE_PATH = 'multipass.db'
+
 
 class ProductionConfig(Config):
     ENV = 'production'

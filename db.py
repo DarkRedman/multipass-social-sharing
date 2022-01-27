@@ -5,23 +5,23 @@ from flask import Flask, current_app, g
 PLACEHOLDER_TASK = {
     'task_id': 0,
     'user_id': None,
-    'task_name': 'my task',
+    'task_name': 'my placeholder task',
     'date': datetime.datetime.now().replace(second=0, microsecond=0).isoformat(),
     'repetition': 'daily',
     'days': 'MO',
     'months': 'JAN',
     'facebook': {
-        'isActive': False,
+        'isActive': True,
         'message': 'my message',
         'files': ""
     },
     'instagram': {
-        'isActive': False,
+        'isActive': True,
         'message': 'my message',
         'files': ""
     },
     'twitter': {
-        'isActive': False,
+        'isActive': True,
         'message': 'my message',
         'files': ""
     }
@@ -29,7 +29,6 @@ PLACEHOLDER_TASK = {
 
 def get_db():
     if 'db' not in g:
-        current_app.logger.debug(current_app.config['DATABASE_PATH'])
         g.db = sqlite3.connect(
             current_app.config['DATABASE_PATH'],
             detect_types=sqlite3.PARSE_DECLTYPES
@@ -52,9 +51,11 @@ def init_db():
         db.executescript(f.read().decode('utf8'))
         db.commit()
 
-def query_db(query, args=(), one=False):
+def query_db(query, args=(), one=False, lastrowid=False):
     cur = get_db().execute(query, args)
     rv = cur.fetchall()
+    if lastrowid:
+        return cur.lastrowid
     cur.close()
     get_db().commit()
     return (rv[0] if rv else None) if one else rv

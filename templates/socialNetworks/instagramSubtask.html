@@ -5,7 +5,7 @@
         <img class="float-right" src="/static/images/expand.svg" alt="expand">
     </div>
     <div id="instagram-{{ task.task_id }}-parameters" style="display:block">
-        <input id="instagram-{{ task.task_id }}-ActivationFlag" type="hidden" name="instagram-activated" value="False">
+        <input id="instagram-{{ task.task_id }}-ActivationFlag" type="hidden" name="instagram-activated" value="{{ task.instagram.isActive }}">
         <textarea name=instagram-message
                   class="task-field instagram-task-message">{{ task.instagram.message }}</textarea>
         <input
