@@ -17,3 +17,5 @@ build/
 *.sqlite
 
 .idea
+
+uploads/*
