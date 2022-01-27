@@ -2,10 +2,15 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, current_app
 )
 from werkzeug.exceptions import abort
-
+from werkzeug.utils import secure_filename
 from multipass.auth import login_required
 from multipass.db import query_db, PLACEHOLDER_TASK
 from .social_networks.twitter import Twitter
+import hashlib, os
+
+def hash(email):
+    h = hashlib.md5(email.encode())
+    return h.hexdigest()
 
 bp = Blueprint('tasks', __name__, url_prefix='/tasks')
 
@@ -81,13 +86,12 @@ def update():
 
     for social_network in social_networks:
         if request.form[social_network+"-activated"] == "True":
-            flash(social_network)
-            files = request.files.getlist("files[]")
+            files = request.files
             images_list = []
 
-            for file in files:
-                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], email, secure_filename(file.filename)))
-                images_list.append(secure_filename(file.filename))
+            for file in files.getlist(f"{social_network}-files-{task['task_id']}"):
+                file.save(os.path.join(current_app.instance_path, current_app.config['UPLOAD_FOLDER'], f"{hash(email)}_{secure_filename(file.filename)}"))
+                images_list.append(f"{hash(email)}_{secure_filename(file.filename)}")
 
             if is_new:
                 query_db(f"INSERT INTO {social_network.capitalize()}Task(task_id, message, files) VALUES(?,?,?)", (task['task_id'], request.form[social_network+"-message"], ",".join(images_list)))
@@ -107,20 +111,34 @@ def route_to_delete_task():
     flash("Task deleted")
     return redirect(url_for("tasks.index"))
 
+# TODO: test to integrate in scheduler
 @bp.route('/twitter')
 @login_required
 def twitter():
-    config = {
-        'CONSUMER_KEY' : current_app.config['CONSUMER_KEY'],
-        'CONSUMER_SECRET' : current_app.config['CONSUMER_SECRET'],
-        'ACCESSTOKEN' : current_app.config['ACCESSTOKEN'],
-        'ACCESSTOKEN_SECRET' : current_app.config['ACCESSTOKEN_SECRET']
-    }
+    try:
+        config = {
+            'CONSUMER_KEY': current_app.config['CONSUMER_KEY'],
+            'CONSUMER_SECRET': current_app.config['CONSUMER_SECRET'],
+            'ACCESSTOKEN': current_app.config['ACCESSTOKEN'],
+            'ACCESSTOKEN_SECRET': current_app.config['ACCESSTOKEN_SECRET'],
+            'UPLOAD_FOLDER': current_app.config['UPLOAD_FOLDER']
+        }
+    except KeyError:
+        config = {}
 
     tw = Twitter(config)
-    flash(f"Twitter({tw.active}): {tw.logged_as}")
+    if tw.active:
+        (f"Successfully logged in Twitter as {tw.logged_as}", "info")
     user_tasks = query_db("SELECT * FROM basicTask WHERE user_id=?", (g.user['email'],))
+
     
     for user_task in user_tasks:
-        tw.share(user_task['name'])
+        twitter_task = query_db("SELECT * FROM TwitterTask WHERE task_id=?", (user_task['task_id'],), one=True)
+        files = str(twitter_task['files'])
+        files = files.split(",")
+        files = [os.path.join(current_app.instance_path, current_app.config['UPLOAD_FOLDER'], secure_filename(file)) for file in files]
+        if twitter_task:
+            result = tw.share(twitter_task['message'], files)
+            if result is False:
+                flash('API not configured', 'error')
     return redirect(url_for('tasks.index'))

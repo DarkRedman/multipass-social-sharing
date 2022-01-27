@@ -11,7 +11,7 @@
         <input
                 id="twitter-{{ task.task_id }}-images-input"
                 class="task-field"
-                type=file multiple="" name="twitter-files[]"
+                type=file multiple="" name="twitter-files-{{ task.task_id }}"
                 onchange="updateImagesList('twitter', '{{ task.task_id }}')">
         <br>
         <button type="button" id="remove-images-button" onclick="removeImagesFromList('twitter', '{{ task.task_id }}')">

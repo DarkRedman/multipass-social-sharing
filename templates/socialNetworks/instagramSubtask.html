@@ -11,7 +11,7 @@
         <input
                 id="instagram-{{ task.task_id }}-images-input"
                 class="task-field"
-                type=file multiple="" name="instagram-files[]"
+                type=file multiple="" name="instagram-files-{{ task.task_id }}"
                 onchange="updateImagesList('instagram', '{{ task.task_id }}')">
         <br>
         <button type="button" id="remove-images-button" onclick="removeImagesFromList('instagram', '{{ task.task_id }}')">
