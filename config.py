@@ -2,7 +2,7 @@ import secrets
 
 
 class Config(object):
-    UPLOAD_FOLDER = '/uploads'
+    UPLOAD_FOLDER = 'uploads'
     AUTHORIZED_FILES_TYPE = {'png', 'jpg', 'jpeg', 'gif', 'svg'}
     SESSION_COOKIE_NAME = 'userSession'
 
