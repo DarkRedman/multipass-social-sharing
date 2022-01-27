@@ -38,3 +38,4 @@ ufw==0.36
 unattended-upgrades==0.1
 urllib3==1.25.8
 zipp==1.0.0
+tweepy==4.4.0
