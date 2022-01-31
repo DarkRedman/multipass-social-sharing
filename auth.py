@@ -5,11 +5,12 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from multipass.db import query_db
+from multipass.database import query_db
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+auth_blueprint = Blueprint('auth', __name__, url_prefix='/auth')
 
-@bp.route('/register', methods=['GET', 'POST'])
+
+@auth_blueprint.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         email = request.form["email"]
@@ -33,7 +34,8 @@ def register():
         flash(error)
     return render_template('auth/register.html')
 
-@bp.route('/login', methods=['GET', 'POST'])
+
+@auth_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form["email"]
@@ -52,7 +54,8 @@ def login():
         flash(error)
     return render_template('auth/login.html')
 
-@bp.before_app_request
+
+@auth_blueprint.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
 
@@ -61,10 +64,12 @@ def load_logged_in_user():
     else:
         g.user = query_db('SELECT * FROM users WHERE email = ?', (user_id,), one=True)
 
-@bp.route('/logout')
+
+@auth_blueprint.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
 
 def login_required(view):
     @functools.wraps(view)
