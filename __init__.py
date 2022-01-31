@@ -28,9 +28,9 @@ def create_app(test_config=True):
         return render_template('home.html')
 
     from . import auth
-    app.register_blueprint(auth.bp)
+    app.register_blueprint(auth.auth_blueprint)
 
     from . import tasks
-    app.register_blueprint(tasks.bp)
+    app.register_blueprint(tasks.tasks_blueprint)
 
     return app
